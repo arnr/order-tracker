@@ -84,6 +84,8 @@ def load_excel():
     file_directory = os.path.join(cwd, 'program\\files')
     os.chdir(file_directory)
     wb = openpyxl.load_workbook('order tracking.xlsx')
+    cwd2 = os.getcwd()
+    print(cwd2)
     ws = wb['ORDERS']
         
     # setup pandas dataframe for further processing
@@ -139,14 +141,14 @@ def saveable_dataframe(original_dataframe, tree):
     return df_to_write
 
 
-# function to write the final data from a dataframe to the excel sheet
-# def write_to_excel(edited_dataframe:pd.DataFrame):
-#     # edited_dataframe: the dataframe with all the edits in it. The final data should be here.
-#     # writer = pd.ExcelWriter('order tracking test.xlsx')
-#     # edited_dataframe.to_excel(writer,sheet_name='ORDERS',index=False)
-#     # writer.close()
-#     escape()
-#     #edited_dataframe.to_excel(r'files/order tracking.xlsx', sheet_name='ORDERS', index=False)
+#function to write the final data from a dataframe to the excel sheet
+def write_to_excel(edited_dataframe:pd.DataFrame):
+    #edited_dataframe: the dataframe with all the edits in it. The final data should be here.
+   
+    writer = pd.ExcelWriter('order tracking test.xlsx')
+    edited_dataframe.to_excel(writer,sheet_name='ORDERS',index=False)
+    writer.close()
+        
 #---------------------------------------------------
 
 

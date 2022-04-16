@@ -42,6 +42,7 @@ def show_open_orders():
     temp = show_entries(df)
     populate_table(tree, temp)
 
+
 def edit_row():
         
     #retrieve data from selected line
@@ -178,14 +179,16 @@ def edit_row():
     # filtered view then the write will try to keep the old unedited rows with then new edited rows.
     # This operation is particularly important where the treeview is from a search and show result operation. 
 
+
+# Function for the save button on bottom frame to write data to excel.
+def save():
+    final_df = saveable_dataframe(df,tree)
+    write_to_excel(final_df)
+    messagebox.showinfo("SUCCESS", "Data saved to Excel sheet")
+
 # test code start
 
-# def save():
-#     # final_df = saveable_dataframe(df,tree)
-#     # #print(final_df)
-#     # write_to_excel(final_df)
-#     # messagebox.showinfo("SUCCESS", "Data saved to Excel sheet")
-#     escape()
+
 
 # test code end
 
@@ -208,6 +211,8 @@ def update():
 ## root window definition
 
 root = Tk()
+# below line is to stop the flashing when this window is created but not shown. It is undone in the show_root_window function
+root.overrideredirect(1)
 root.title('Order Tracker')
 root.geometry("1000x700")
 root.eval('tk::PlaceWindow . center')
@@ -217,6 +222,7 @@ https://www.tutorialspoint.com/how-to-center-a-window-on-the-screen-in-tkinter
 '''
 
 def reshow_root_window():
+    root.overrideredirect(False)
     root.deiconify()
 
 root.withdraw()
@@ -290,10 +296,13 @@ tree.place(relx=.5, rely=0.01, relwidth=0.97, anchor='n')
 ## bottom frame contents
 
 edit_btn = Button(bottom_frame, text = 'Edit', command=edit_row)
-edit_btn.place(relx=0.5, rely=0.1, relwidth=0.97, anchor='n')
+edit_btn.place(relx=0.25, rely=0.1, relwidth=0.4, anchor=N)
 
-close_btn = Button(bottom_frame, text = 'Save & Close')
-close_btn.place(relx=0.5, rely=0.35, relwidth=0.97, anchor='n')
+save_btn = Button(bottom_frame, text = 'Save', command=save)
+save_btn.place(relx=0.75, rely=0.1, relwidth=0.4, anchor=N)
+
+close_btn = Button(bottom_frame, text = 'Close', command=root.destroy)
+close_btn.place(relx=0.5, rely=0.4, relwidth=0.9, anchor=N)
 #---------------------------------------------------
 
 global holder
