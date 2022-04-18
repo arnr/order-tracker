@@ -150,14 +150,14 @@ def edit_row():
     save_edit_btn = Button(edit_window, text = 'Save Changes', command=commit_changes)
     save_edit_btn.place(relx = 0.25, rely = 0.9, relwidth = 0.4, anchor=N)
 
-    save_edit_btn = Button(edit_window, text = 'Close', command=edit_window.destroy)
+    #save_edit_btn = Button(edit_window, text = 'Close', command=edit_window.destroy)
+    save_edit_btn = Button(edit_window, text = 'status', command=lambda: status_history_window(edit_window, df,focused_index))
     save_edit_btn.place(relx = 0.75, rely = 0.9, relwidth = 0.4, anchor=N)
     '''
     SOURCE:
     https://www.geeksforgeeks.org/how-to-close-a-window-in-tkinter/
     '''
 
-#def status_history_window
 
 # TO DO: the above function is to open a new window and get stuff in it.
 # follow this tutorial for more guidance on that regard

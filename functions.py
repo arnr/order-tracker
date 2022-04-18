@@ -1,7 +1,7 @@
 # All functions 
 
 #from curses import window
-from msilib import datasizemask
+#from msilib import datasizemask
 from tkinter import CENTER
 from glob import escape
 from numpy import can_cast
@@ -82,7 +82,7 @@ def PLACE_HOLDER():
 def load_excel():
 
     cwd = os.getcwd()
-    file_directory = os.path.join(cwd, 'program\\files')
+    file_directory = os.path.join(cwd, 'program', 'files')
     os.chdir(file_directory)
     wb = openpyxl.load_workbook('order tracking.xlsx')
     ws = wb['ORDERS']
@@ -114,12 +114,19 @@ def show_entries(dataframe:pd.DataFrame, index_list=[]):
 
 #gets status history. It can bring entire dataframe set or just one row info
 def get_status_history(dataframe:pd.DataFrame, index=-1):
+    
+    status_regex = re.compile(r'\w+\s\d+\/\d+\/\d\d\d\d')
 
+    # get all status histories
     if index == -1:
-        list = dataframe['STATUS HISTORY'].tolist()
-        return list
+        data = dataframe['STATUS HISTORY'].tolist()
+        return data
+
+    # get status history at index row
     else:
         data = dataframe.iloc[index].loc['STATUS HISTORY']
+        list = status_regex.findall(data)
+        return list
         return data
     '''
     SOURCE
@@ -159,7 +166,7 @@ def write_to_excel(edited_dataframe:pd.DataFrame):
     writer = pd.ExcelWriter('order tracking test.xlsx')
     edited_dataframe.to_excel(writer,sheet_name='ORDERS',index=False)
     writer.close()
-        
+
 #---------------------------------------------------
 
 
@@ -230,6 +237,26 @@ def open_lvl2_window(new_window, window_title:str, main_window:Tk, size="200x200
     new_window.geometry(size)
 
     return new_window
+
+
+def status_history_window(window, dataframe, index):
+    # window = name of window from where this window will get called
+    # dataframe and list for the get_status_history function
+
+    list = get_status_history(dataframe, index)
+    
+    # draw window
+    status_window = Toplevel(window)
+    status_window.title("Status History")
+    status_window.geometry("200x200")
+
+    listbox = Listbox(status_window)    
+    listbox.place(relx = 0.5, rely = 0.1, relwidth = 0.8, anchor=N )
+
+    for count, item in enumerate(list):
+       listbox.insert(count, item)
+
+
 #---------------------------------------------------
 
 
