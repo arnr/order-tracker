@@ -47,7 +47,16 @@ def edit_row():
         
     #retrieve data from selected line
     focused_line = tree.focus()
+    focused_index = tree.index(tree.selection())
+    '''
+    SOURCE:
+    https://stackoverflow.com/questions/68508694/how-do-i-get-the-index-of-selected-row-in-tkinter-treeview
+    '''
+    test =get_status_history(df,focused_index)
+    print(test)
+
     
+
     if "".__eq__(focused_line):
         print("no data selected")
         messagebox.showerror("ERROR", "Nothing was selected to edit!")

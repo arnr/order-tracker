@@ -1,6 +1,7 @@
 # All functions 
 
 #from curses import window
+from msilib import datasizemask
 from tkinter import CENTER
 from glob import escape
 from numpy import can_cast
@@ -84,8 +85,6 @@ def load_excel():
     file_directory = os.path.join(cwd, 'program\\files')
     os.chdir(file_directory)
     wb = openpyxl.load_workbook('order tracking.xlsx')
-    cwd2 = os.getcwd()
-    print(cwd2)
     ws = wb['ORDERS']
         
     # setup pandas dataframe for further processing
@@ -113,13 +112,25 @@ def show_entries(dataframe:pd.DataFrame, index_list=[]):
     return result
 
 
-def get_status_history(dataframe:pd.DataFrame):
-    list = dataframe['STATUS HISTORY'].tolist()
-    return list
+#gets status history. It can bring entire dataframe set or just one row info
+def get_status_history(dataframe:pd.DataFrame, index=-1):
+
+    if index == -1:
+        list = dataframe['STATUS HISTORY'].tolist()
+        return list
+    else:
+        data = dataframe.iloc[index].loc['STATUS HISTORY']
+        return data
     '''
     SOURCE
     https://stackoverflow.com/questions/22341271/get-list-from-pandas-dataframe-column-or-row
+    https://stackoverflow.com/questions/28754603/indexing-pandas-data-frames-integer-rows-named-columns
     '''
+
+#test code start
+
+
+#test code end
 
 
 # function to save the edited treeview data back to dataframe for further saving
