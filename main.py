@@ -157,6 +157,7 @@ def edit_row():
     https://www.geeksforgeeks.org/how-to-close-a-window-in-tkinter/
     '''
 
+#def status_history_window
 
 # TO DO: the above function is to open a new window and get stuff in it.
 # follow this tutorial for more guidance on that regard
