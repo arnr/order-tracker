@@ -151,7 +151,7 @@ def edit_row():
     save_edit_btn.place(relx = 0.25, rely = 0.9, relwidth = 0.4, anchor=N)
 
     #save_edit_btn = Button(edit_window, text = 'Close', command=edit_window.destroy)
-    save_edit_btn = Button(edit_window, text = 'status', command=lambda: status_history_window(edit_window, df,focused_index))
+    save_edit_btn = Button(edit_window, text = ' Status History', command=lambda: status_history_window(edit_window, df,focused_index))
     save_edit_btn.place(relx = 0.75, rely = 0.9, relwidth = 0.4, anchor=N)
     '''
     SOURCE:

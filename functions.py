@@ -173,6 +173,26 @@ def write_to_excel(edited_dataframe:pd.DataFrame):
 ## General GUI related functions
 ##
 
+
+def grey_out(window):
+    # window is name of window/widget to "greyed out"
+    
+    for child in window.winfo_children():
+        child.configure(state='disable')
+
+
+def grey_in(window):
+    # window is name of window/widget to "greyed in"
+
+    for child in window.winfo_children():
+        child.configure(state='normal')
+'''
+SOURCE
+https://stackoverflow.com/questions/24942760/is-there-a-way-to-gray-out-disable-a-tkinter-frame
+https://www.tutorialspoint.com/getting-every-child-widget-of-a-tkinter-window
+https://www.tutorialspoint.com/how-to-gray-out-disable-a-tkinter-frame
+'''
+
 # creates a 3 second splash screen
 def splash():
     splash_screen = Tk()
@@ -239,11 +259,10 @@ def open_lvl2_window(new_window, window_title:str, main_window:Tk, size="200x200
     return new_window
 
 
+# level 3 window shows history of statuses of selected row
 def status_history_window(window, dataframe, index):
     # window = name of window from where this window will get called
     # dataframe and list for the get_status_history function
-
-    list = get_status_history(dataframe, index)
     
     # draw window
     status_window = Toplevel(window)
@@ -251,15 +270,28 @@ def status_history_window(window, dataframe, index):
     status_window.geometry("250x300")
     status_window.grab_set()
 
+    # box for data 
     listbox = Listbox(status_window)    
     listbox.place(relx = 0.5, rely = 0.1, relwidth = 0.9, relheight=0.8, anchor=N)
 
-    close_btn = Button(status_window, text = 'Close', command= status_window.destroy)
+    # button function
+    def window_close():
+        status_window.grab_release()
+        grey_in(window)
+        status_window.destroy()
+    
+    # button
+    close_btn = Button(status_window, text = 'Close', command= window_close)
     close_btn.place(relx=0.5, rely=0.85, relwidth=0.9, anchor=N)
+
+    # populate box
+    list = get_status_history(dataframe, index)
 
     for count, item in enumerate(list):
        listbox.insert(count, item)
 
+    # grey out the parent window
+    grey_out(window)
 
 #---------------------------------------------------
 
@@ -276,21 +308,6 @@ https://www.tutorialspoint.com/delete-and-edit-items-in-tkinter-treeview
 
 
 '''
-#def backup():
-
-   #this function will create a backup of the main excel sheet before any changes are made. 
-    #Furthermore it will check how many backups are there and delete the oldest ones so as to control number of copies kept
-'''
-
-
-
-
-
-''
-regex search procedure for reference
->>>sampletext = 'closed 3/30/2022; received 3/23/2022; ordered 3/15/2022'
->>>myregex = re.compile(r'\w+\s\d+\/\d+\/\d\d\d\d')
->>>myregex.findall(sampletext)
->>>['closed 3/30/2022', 'received 3/23/2022', 'ordered 3/15/2022']
-dasda
-'''
+# def backup():
+#    #this function will create a backup of the main excel sheet before any changes are made. 
+#     #Furthermore it will check how many backups are there and delete the oldest ones so as to control number of copies kept
