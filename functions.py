@@ -248,10 +248,14 @@ def status_history_window(window, dataframe, index):
     # draw window
     status_window = Toplevel(window)
     status_window.title("Status History")
-    status_window.geometry("200x200")
+    status_window.geometry("250x300")
+    status_window.grab_set()
 
     listbox = Listbox(status_window)    
-    listbox.place(relx = 0.5, rely = 0.1, relwidth = 0.8, anchor=N )
+    listbox.place(relx = 0.5, rely = 0.1, relwidth = 0.9, relheight=0.8, anchor=N)
+
+    close_btn = Button(status_window, text = 'Close', command= status_window.destroy)
+    close_btn.place(relx=0.5, rely=0.85, relwidth=0.9, anchor=N)
 
     for count, item in enumerate(list):
        listbox.insert(count, item)
