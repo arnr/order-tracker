@@ -43,120 +43,7 @@ def show_open_orders():
     populate_table(tree, temp)
 
 
-def edit_row():
-        
-    #retrieve data from selected line
-    focused_line = tree.focus()
-    focused_index = tree.index(tree.selection())
-    '''
-    SOURCE:
-    https://stackoverflow.com/questions/68508694/how-do-i-get-the-index-of-selected-row-in-tkinter-treeview
-    '''
-    test =get_status_history(df,focused_index)
-    print(test)
 
-    
-
-    if "".__eq__(focused_line):
-        print("no data selected")
-        messagebox.showerror("ERROR", "Nothing was selected to edit!")
-        return
-        '''
-        SOURCE:
-        https://stackoverflow.com/questions/9573244/how-to-check-if-the-string-is-empty
-        '''    
-    
-    selected_data = tree.item(focused_line,"values")
- 
-
-    edit_window = Toplevel(root)
-    edit_window.title("Edit Entry")
-    edit_window.geometry("350x400")
-
-    '''CODE DEPRECATED - see note 1
-    entry_boxes = {
-        "status" : StringVar(),
-        "ticket_num" : StringVar(), 
-        "vendor" : StringVar(),
-        "part_desc" : StringVar(),
-        "part_num" : StringVar(),
-        "order_num" : StringVar(),
-        "amount" : StringVar(),
-        "pay_method" : StringVar()
-    }
-    '''
-
-    #store entry box data in this list
-    box_entries=[]
-    label_text = ["Status", "Ticket #", "Vendor", "Part Description", "Part #", "Order #", "Amount", "Payment Method"]
-
-
-    for i in range(len(label_text)):
-        
-        # labels
-        label = Label(edit_window)
-        label.configure(text=label_text[i])
-        label.place(relx = 0.05, rely = (i/10) + 0.1, relwidth = 0.4)
-        # TO DO: the label must be left aligned to make it looke better
-
-        '''CODE DEPRECATED - see note 1
-        entry boxes
-        entry_box = key + "_entrybx" 
-        entry_box = Entry(edit_window, textvariable=entry_boxes[key])
-        entry_box.place(relx = 0.5, rely = (i/10) + 0.1, relwidth = 0.4)
-        entry_box.insert(0, selected_data[i])
-        '''
-
-        #entry boxes
-        entry_box = Entry(edit_window)
-        entry_box.place(relx = 0.5, rely = (i/10) + 0.1, relwidth = 0.4)
-        entry_box.insert(0, selected_data[i])
-        box_entries.append(entry_box)
-        '''
-        SOURCE: 
-
-        Default text in entry widget
-        https://www.geeksforgeeks.org/how-to-set-the-default-text-of-tkinter-entry-widget/  
-
-        create entry boxes with loop and retrieve data from boxes
-        https://www.youtube.com/watch?v=H3Cjtm6NuaQ&t
-
-        note 1
-        DEPRECATED CODE 
-        Used the below tutorial to write the code as one approach to solve 
-        writing multiple widgets with loop and then retrieving the info thereafter. 
-
-        To create multiple widgets and reference them:
-        https://www.youtube.com/watch?v=XerT3-rrOmQ
-        END OF note 1
-        '''    
-    
-    ## button & window functions
-    def commit_changes():
-        values=[]
-        for entry in box_entries:
-            values.append(entry.get())
-
-        tree.item(focused_line, values=values)
-
-        edit_window.destroy()
-
-   # TO DO: possible solution to retrieving data https://www.youtube.com/watch?v=H3Cjtm6NuaQ
-        '''
-        https://www.tutorialspoint.com/delete-and-edit-items-in-tkinter-treeview
-        '''
-    
-    ## button definitions
-    save_edit_btn = Button(edit_window, text = 'Save Changes', command=commit_changes)
-    save_edit_btn.place(relx = 0.25, rely = 0.9, relwidth = 0.4, anchor=N)
-
-    #save_edit_btn = Button(edit_window, text = 'Close', command=edit_window.destroy)
-    save_edit_btn = Button(edit_window, text = ' Status History', command=lambda: status_history_window(edit_window, df,focused_index))
-    save_edit_btn.place(relx = 0.75, rely = 0.9, relwidth = 0.4, anchor=N)
-    '''
-    SOURCE:
-    https://www.geeksforgeeks.org/how-to-close-a-window-in-tkinter/
-    '''
 
 
 # TO DO: the above function is to open a new window and get stuff in it.
@@ -302,10 +189,17 @@ tree = ttk.Treeview(table_frame, height=10)
 tree.place(relx=.5, rely=0.01, relwidth=0.97, anchor='n')
 #---------------------------------------------------
 
+# test code start
+
+def tata():
+    grey_out(root)
+
+# test code end
+
 
 ## bottom frame contents
 
-edit_btn = Button(bottom_frame, text = 'Edit', command=edit_row)
+edit_btn = Button(bottom_frame, text = 'Edit', command= lambda: edit_row(tree, df, root))
 edit_btn.place(relx=0.25, rely=0.1, relwidth=0.4, anchor=N)
 
 save_btn = Button(bottom_frame, text = 'Save', command=save)

@@ -13,6 +13,7 @@ import re
 from tkinter import *
 from tkinter import ttk
 from functions import *
+from tkinter import messagebox
 
 def new_order(worksheet, ticket_num, date, vendor, part_name, part_num, order_num, amount, pay_method ):
     # enters new data row into sheet
@@ -115,6 +116,7 @@ def show_entries(dataframe:pd.DataFrame, index_list=[]):
 #gets status history. It can bring entire dataframe set or just one row info
 def get_status_history(dataframe:pd.DataFrame, index=-1):
     
+    # regex definition
     status_regex = re.compile(r'\w+\s\d+\/\d+\/\d\d\d\d')
 
     # get all status histories
@@ -125,19 +127,24 @@ def get_status_history(dataframe:pd.DataFrame, index=-1):
     # get status history at index row
     else:
         data = dataframe.iloc[index].loc['STATUS HISTORY']
-        list = status_regex.findall(data)
+        
+        try:
+            list = status_regex.findall(data)
+            
+        except TypeError:
+            list = []
+
+
+        if list == []:
+            messagebox.showinfo("No History", "This record has no history")
+
         return list
-        return data
+        
     '''
     SOURCE
     https://stackoverflow.com/questions/22341271/get-list-from-pandas-dataframe-column-or-row
     https://stackoverflow.com/questions/28754603/indexing-pandas-data-frames-integer-rows-named-columns
     '''
-
-#test code start
-
-
-#test code end
 
 
 # function to save the edited treeview data back to dataframe for further saving
@@ -159,7 +166,7 @@ def saveable_dataframe(original_dataframe, tree):
     return df_to_write
 
 
-#function to write the final data from a dataframe to the excel sheet
+# function to write the final data from a dataframe to the excel sheet
 def write_to_excel(edited_dataframe:pd.DataFrame):
     #edited_dataframe: the dataframe with all the edits in it. The final data should be here.
    
@@ -177,21 +184,49 @@ def write_to_excel(edited_dataframe:pd.DataFrame):
 def grey_out(window):
     # window is name of window/widget to "greyed out"
     
-    for child in window.winfo_children():
-        child.configure(state='disable')
+    try:
+        for child in window.winfo_children():
+            wtype = child.winfo_class()
+            
+            if wtype not in ('Frame','Labelframe'):
+                child.configure(state='disable')
+            
+            else:
+                grey_out(child)
+   
+    except TclError:
+        pass
 
 
 def grey_in(window):
     # window is name of window/widget to "greyed in"
+    
+    try:
+        for child in window.winfo_children():
+            wtype = child.winfo_class()
+            
+            if wtype not in ('Frame', 'Labelframe'):
+                child.configure(state= 'normal')
+            
+            else:
+                grey_in(child)
+   
+    except:
+        pass
+    '''
+    SOURCE
+    https://stackoverflow.com/questions/24942760/is-there-a-way-to-gray-out-disable-a-tkinter-frame
+    https://www.tutorialspoint.com/getting-every-child-widget-of-a-tkinter-window
+    https://www.tutorialspoint.com/how-to-gray-out-disable-a-tkinter-frame
+    '''
 
-    for child in window.winfo_children():
-        child.configure(state='normal')
-'''
-SOURCE
-https://stackoverflow.com/questions/24942760/is-there-a-way-to-gray-out-disable-a-tkinter-frame
-https://www.tutorialspoint.com/getting-every-child-widget-of-a-tkinter-window
-https://www.tutorialspoint.com/how-to-gray-out-disable-a-tkinter-frame
-'''
+
+# function for the close button
+def window_close(parent_window, child_window):
+    child_window.grab_release()
+    grey_in(parent_window)
+    child_window.destroy()
+
 
 # creates a 3 second splash screen
 def splash():
@@ -264,6 +299,12 @@ def status_history_window(window, dataframe, index):
     # window = name of window from where this window will get called
     # dataframe and list for the get_status_history function
     
+    # get data for this window; exit function if none available
+    list = get_status_history(dataframe, index)
+    if list == []:
+        return
+     
+    
     # draw window
     status_window = Toplevel(window)
     status_window.title("Status History")
@@ -275,24 +316,144 @@ def status_history_window(window, dataframe, index):
     listbox.place(relx = 0.5, rely = 0.1, relwidth = 0.9, relheight=0.8, anchor=N)
 
     # button function
-    def window_close():
-        status_window.grab_release()
-        grey_in(window)
-        status_window.destroy()
+    # def window_close():
+    #     status_window.grab_release()
+    #     grey_in(window)
+    #     status_window.destroy()
     
     # button
-    close_btn = Button(status_window, text = 'Close', command= window_close)
+    close_btn = Button(status_window, text = 'Close', command=lambda: window_close(window, status_window))
     close_btn.place(relx=0.5, rely=0.85, relwidth=0.9, anchor=N)
 
     # populate box
-    list = get_status_history(dataframe, index)
-
     for count, item in enumerate(list):
        listbox.insert(count, item)
 
     # grey out the parent window
     grey_out(window)
 
+
+# level 2 window to show and edit one row from the treeview
+def edit_row(tree, dataframe, parent_window):
+        
+    #retrieve data from selected line
+    focused_line = tree.focus()
+    focused_index = tree.index(tree.selection())
+    '''
+    SOURCE:
+    https://stackoverflow.com/questions/68508694/how-do-i-get-the-index-of-selected-row-in-tkinter-treeview
+    '''
+    
+    # check if a row was selected before moving on.
+    if "".__eq__(focused_line):
+        print("no data selected")
+        messagebox.showerror("ERROR", "Nothing was selected to edit!")
+        return
+        '''
+        SOURCE:
+        https://stackoverflow.com/questions/9573244/how-to-check-if-the-string-is-empty
+        '''    
+     
+    # GUI related
+    #
+    edit_window = Toplevel(parent_window)
+    edit_window.title("Edit Entry")
+    edit_window.geometry("350x400")
+    edit_window.grab_set()
+
+    '''CODE DEPRECATED - see note 1
+    entry_boxes = {
+        "status" : StringVar(),
+        "ticket_num" : StringVar(), 
+        "vendor" : StringVar(),
+        "part_desc" : StringVar(),
+        "part_num" : StringVar(),
+        "order_num" : StringVar(),
+        "amount" : StringVar(),
+        "pay_method" : StringVar()
+    }
+    '''
+    # store entry box data in these lists
+    box_entries=[]
+    label_text = ["Status", "Ticket #", "Vendor", "Part Description", "Part #", "Order #", "Amount", "Payment Method"]
+    selected_data = tree.item(focused_line, "values")
+
+    # create the labels and entry boxes; populate with relevant data
+    for i in range(len(label_text)):
+        
+        # labels
+        label = Label(edit_window)
+        label.configure(text=label_text[i])
+        label.place(relx = 0.05, rely = (i/10) + 0.025, relwidth = 0.4)
+        # TO DO: the label must be left aligned to make it looke better
+
+        '''CODE DEPRECATED - see note 1
+        entry boxes
+        entry_box = key + "_entrybx" 
+        entry_box = Entry(edit_window, textvariable=entry_boxes[key])
+        entry_box.place(relx = 0.5, rely = (i/10) + 0.1, relwidth = 0.4)
+        entry_box.insert(0, selected_data[i])
+        '''
+
+        #entry boxes
+        entry_box = Entry(edit_window)
+        entry_box.place(relx = 0.5, rely = (i/10) + 0.025, relwidth = 0.4)
+        entry_box.insert(0, selected_data[i])
+        box_entries.append(entry_box)
+        '''
+        SOURCE: 
+
+        Default text in entry widget
+        https://www.geeksforgeeks.org/how-to-set-the-default-text-of-tkinter-entry-widget/  
+
+        create entry boxes with loop and retrieve data from boxes
+        https://www.youtube.com/watch?v=H3Cjtm6NuaQ&t
+
+        note 1
+        DEPRECATED CODE 
+        Used the below tutorial to write the code as one approach to solve 
+        writing multiple widgets with loop and then retrieving the info thereafter. 
+
+        To create multiple widgets and reference them:
+        https://www.youtube.com/watch?v=XerT3-rrOmQ
+        END OF note 1
+        '''    
+    
+
+    # button & window functions
+    #
+    def commit_changes():
+        values=[]
+        for entry in box_entries:
+            values.append(entry.get())
+
+        tree.item(focused_line, values=values)
+
+        edit_window.destroy()
+
+
+   # TO DO: possible solution to retrieving data https://www.youtube.com/watch?v=H3Cjtm6NuaQ
+        '''
+        https://www.tutorialspoint.com/delete-and-edit-items-in-tkinter-treeview
+        '''
+    
+    # button definitions
+    #
+    save_edit_btn = Button(edit_window, text= 'Save Changes', command=commit_changes)
+    save_edit_btn.place(relx= 0.25, rely= 0.8, relwidth= 0.4, anchor= N)
+
+    #save_edit_btn = Button(edit_window, text = 'Close', command=edit_window.destroy)
+    save_edit_btn = Button(edit_window, text= ' Status History', command=lambda: status_history_window(edit_window, dataframe,focused_index))
+    save_edit_btn.place(relx= 0.75, rely= 0.8, relwidth= 0.4, anchor= N)
+
+    close_btn = Button(edit_window, text= 'Close', command=lambda: window_close(parent_window, edit_window))
+    close_btn.place(relx= 0.5, rely= 0.9, relwidth= 0.9, anchor= N)
+    '''
+    SOURCE:
+    https://www.geeksforgeeks.org/how-to-close-a-window-in-tkinter/
+    '''
+
+    grey_out(parent_window)
 #---------------------------------------------------
 
 
