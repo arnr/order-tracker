@@ -73,7 +73,24 @@ def PLACE_HOLDER():
 #deleting and editing rows in treeview: see below tutorial
 #https://www.tutorialspoint.com/delete-and-edit-items-in-tkinter-treeview
 
-    
+## General functions
+## 
+
+def remove(string):
+    return "".join(string.split())
+
+    '''
+    SOURCE
+    https://www.geeksforgeeks.org/python-remove-spaces-from-a-string/
+    '''
+
+
+
+
+#---------------------------------------------------    
+
+
+
 ## Data related functions
 ##
 
@@ -175,6 +192,7 @@ def write_to_excel(edited_dataframe:pd.DataFrame):
     writer.close()
 
 #---------------------------------------------------
+
 
 
 ## General GUI related functions
@@ -373,18 +391,43 @@ def edit_row(tree, dataframe, parent_window):
         "pay_method" : StringVar()
     }
     '''
+    
+
     # store entry box data in these lists
     box_entries=[]
     label_text = ["Status", "Ticket #", "Vendor", "Part Description", "Part #", "Order #", "Amount", "Payment Method"]
+    omit_list = ("Status", "Vendor", "Payment Method") # so these can be made in to label box instead of entry boxes
     selected_data = tree.item(focused_line, "values")
+
+
+    # main button & window functions 
+    #
+    def commit_changes():
+        values=[]
+        for entry in box_entries:
+            values.append(entry.get())
+
+        tree.item(focused_line, values=values)
+
+        edit_window.destroy()    
+
+    def edit_Status():
+        print('Status button')
+
+    def edit_Vendor():
+        print('vendor button')
+
+    def edit_PaymentMethod():
+        print('payment method button')
 
     # create the labels and entry boxes; populate with relevant data
     for i in range(len(label_text)):
         
         # labels
         label = Label(edit_window)
+        label.place(relx = 0.03, rely = (i/10) + 0.025, relwidth = 0.33)
         label.configure(text=label_text[i])
-        label.place(relx = 0.05, rely = (i/10) + 0.025, relwidth = 0.4)
+        
         # TO DO: the label must be left aligned to make it looke better
 
         '''CODE DEPRECATED - see note 1
@@ -395,19 +438,41 @@ def edit_row(tree, dataframe, parent_window):
         entry_box.insert(0, selected_data[i])
         '''
 
-        #entry boxes
-        entry_box = Entry(edit_window)
-        entry_box.place(relx = 0.5, rely = (i/10) + 0.025, relwidth = 0.4)
-        entry_box.insert(0, selected_data[i])
-        box_entries.append(entry_box)
+        # # entry boxes 
+        # entry_box = Entry(edit_window)
+        # entry_box.place(relx = 0.5, rely = (i/10) + 0.025, relwidth = 0.4)
+        # entry_box.insert(0, selected_data[i])
+        # box_entries.append(entry_box)    
+
+        # entry boxes 
+        if label_text[i] not in omit_list:
+            entry_box = Entry(edit_window)
+            entry_box.place(relx = 0.35, rely = (i/10) + 0.025, relwidth = 0.4)
+            entry_box.insert(0, selected_data[i])
+            box_entries.append(entry_box)    
+
+        # unclicable label boxes to show data
+        if label_text[i] in omit_list:
+            omit_list_label = Label(edit_window, bg= "white", relief= SUNKEN, anchor= "w" )
+            omit_list_label.place(relx = 0.35, rely = (i/10) + 0.025, relwidth = 0.4)
+            omit_list_label.configure(text= selected_data[i])
+            
+            name = 'edit_'+ remove(label_text[i])
+            # not working : lala = getattr(name)
+            label_edit_btn = Button(edit_window, text= 'Edit', command= name)
+            label_edit_btn.place(relx = 0.8, rely = (i/10) + 0.025, relwidth = 0.15)
+            
+
+
+
+
         '''
         SOURCE: 
 
-        Default text in entry widget
-        https://www.geeksforgeeks.org/how-to-set-the-default-text-of-tkinter-entry-widget/  
-
-        create entry boxes with loop and retrieve data from boxes
-        https://www.youtube.com/watch?v=H3Cjtm6NuaQ&t
+        -> Default text in entry widget:  https://www.geeksforgeeks.org/how-to-set-the-default-text-of-tkinter-entry-widget/  
+        -> create entry boxes with loop and retrieve data from boxes:  https://www.youtube.com/watch?v=H3Cjtm6NuaQ&t
+        -> https://stackoverflow.com/questions/21495367/how-to-align-text-to-the-left
+        -> Tkinter Relief styles:  https://www.tutorialspoint.com/python/tk_relief.htm
 
         note 1
         DEPRECATED CODE 
@@ -419,23 +484,15 @@ def edit_row(tree, dataframe, parent_window):
         END OF note 1
         '''    
     
+    
 
-    # button & window functions
-    #
-    def commit_changes():
-        values=[]
-        for entry in box_entries:
-            values.append(entry.get())
-
-        tree.item(focused_line, values=values)
-
-        edit_window.destroy()
 
 
    # TO DO: possible solution to retrieving data https://www.youtube.com/watch?v=H3Cjtm6NuaQ
         '''
         https://www.tutorialspoint.com/delete-and-edit-items-in-tkinter-treeview
         '''
+    
     
     # button definitions
     #
@@ -456,7 +513,27 @@ def edit_row(tree, dataframe, parent_window):
     grey_out(parent_window)
 #---------------------------------------------------
 
+def update_status(window):
+    # window is the parent window.
 
+    # draw window
+    edit_status_window = Toplevel(window)
+    edit_status_window.title("Edit Status")
+    edit_status_window.geometry("250x300")
+    #edit_status_window.grab_set()
+
+    # button functions
+
+    # button definitions
+    #close_btn = Button(edit_status_window, text= 'Close', command=lambda: window_close(window, edit_status_window))
+    #close_btn.place(relx= 0.5, rely= 0.9, relwidth= 0.9, anchor= N)
+
+
+    # grey out parent window
+    #grey_out(window)
+
+
+    pass
 
 '''
 to take data from treeview to dataframe 
