@@ -14,6 +14,8 @@ from tkinter import *
 from tkinter import ttk
 from functions import *
 from tkinter import messagebox
+import sys
+from functools import partial
 
 def new_order(worksheet, ticket_num, date, vendor, part_name, part_num, order_num, amount, pay_method ):
     # enters new data row into sheet
@@ -396,30 +398,51 @@ def edit_row(tree, dataframe, parent_window):
     # store entry box data in these lists
     box_entries=[]
     label_text = ["Status", "Ticket #", "Vendor", "Part Description", "Part #", "Order #", "Amount", "Payment Method"]
-    omit_list = ("Status", "Vendor", "Payment Method") # so these can be made in to label box instead of entry boxes
+    omit_list = ("Status", "Vendor", 'Payment Method') # so these can be made in to label box instead of entry boxes
     selected_data = tree.item(focused_line, "values")
 
 
     # main button & window functions 
     #
-    def commit_changes():
-        values=[]
-        for entry in box_entries:
-            values.append(entry.get())
 
+    # commits the changes typed in edit window back into the treeview
+    def commit_changes():
+
+        values=[]
+
+        for entry in box_entries:
+            if isinstance(entry, Entry):
+                values.append(entry.get())
+            elif isinstance(entry, Label):
+                values.append(omit_list_label.cget("text"))
+        '''
+        SOURCE
+        https://blog.finxter.com/how-to-determine-the-type-of-an-object-in-python/
+        https://stackoverflow.com/questions/34667710/pattern-matching-tkinter-child-widgets-winfo-children-to-determine-type
+        '''
+        # write to treeview
         tree.item(focused_line, values=values)
 
-        edit_window.destroy()    
+        # close window after saving
+        window_close(parent_window, edit_window)   
 
     def edit_Status():
-        print('Status button')
+        print(omit_list_label.cget("text"))
 
     def edit_Vendor():
         print('vendor button')
 
     def edit_PaymentMethod():
         print('payment method button')
+    
+    button_identities = []
+    def bob(i):
+        bname = (button_identities[i])
+        bname.configure(text = "clicked")
+        print(i)
+    
 
+    
     # create the labels and entry boxes; populate with relevant data
     for i in range(len(label_text)):
         
@@ -444,27 +467,42 @@ def edit_row(tree, dataframe, parent_window):
         # entry_box.insert(0, selected_data[i])
         # box_entries.append(entry_box)    
 
-        # entry boxes 
+        # editable entry boxes 
         if label_text[i] not in omit_list:
+            # draw and populate entry boxes
             entry_box = Entry(edit_window)
             entry_box.place(relx = 0.35, rely = (i/10) + 0.025, relwidth = 0.4)
             entry_box.insert(0, selected_data[i])
-            box_entries.append(entry_box)    
+            
+            # save data into list
+            box_entries.append(entry_box)
+            button_identities.append("")    
 
-        # unclicable label boxes to show data
+        # unclicable label boxes to show data and corresponding edit buttons
         if label_text[i] in omit_list:
+            # draw and populate labels
             omit_list_label = Label(edit_window, bg= "white", relief= SUNKEN, anchor= "w" )
             omit_list_label.place(relx = 0.35, rely = (i/10) + 0.025, relwidth = 0.4)
             omit_list_label.configure(text= selected_data[i])
             
-            name = 'edit_'+ remove(label_text[i])
-            # not working : lala = getattr(name)
-            label_edit_btn = Button(edit_window, text= 'Edit', command= name)
+            # get the functions for the edit button. Functions names are 'edit_Status', 'edit_Vendor' & 'edit_PaymentMethod'
+            edit_function = locals().get('edit_' + remove(label_text[i]))
+
+            # draw edit button
+            label_edit_btn = Button(edit_window, text= 'Edit', command=partial(bob, i) )
+            # label_edit_btn = Button(edit_window, text= 'Edit' )
             label_edit_btn.place(relx = 0.8, rely = (i/10) + 0.025, relwidth = 0.15)
+            button_identities.append(label_edit_btn)
+            # label_edit_btn.configure(command=)
             
 
-
-
+            # save data into list
+            box_entries.append(omit_list_label)
+            '''
+            SOURCE
+            https://stackoverflow.com/questions/10865116/tkinter-creating-buttons-in-for-loop-passing-command-arguments
+            '''
+           
 
         '''
         SOURCE: 
@@ -484,18 +522,22 @@ def edit_row(tree, dataframe, parent_window):
         END OF note 1
         '''    
     
-    
+    print(type(box_entries))
+    print(box_entries)
+    for i in box_entries:
+        print(type(i))
 
 
 
    # TO DO: possible solution to retrieving data https://www.youtube.com/watch?v=H3Cjtm6NuaQ
-        '''
-        https://www.tutorialspoint.com/delete-and-edit-items-in-tkinter-treeview
-        '''
+        # '''
+        # https://www.tutorialspoint.com/delete-and-edit-items-in-tkinter-treeview
+        # '''
     
     
     # button definitions
     #
+    
     save_edit_btn = Button(edit_window, text= 'Save Changes', command=commit_changes)
     save_edit_btn.place(relx= 0.25, rely= 0.8, relwidth= 0.4, anchor= N)
 
