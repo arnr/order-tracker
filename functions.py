@@ -2,6 +2,7 @@
 
 #from curses import window
 #from msilib import datasizemask
+from cgitb import text
 from tkinter import CENTER
 from glob import escape
 from numpy import can_cast
@@ -412,43 +413,55 @@ def edit_vendor(parent_window, value):
     # Draw window
     edit_vendor_window = Toplevel(parent_window)
     edit_vendor_window.title("Edit Vendor")
-    edit_vendor_window.geometry("350x400")
+    edit_vendor_window.geometry("200x250")
     edit_vendor_window.grab_set()        
 
     # Draw label
     label_status = Label(edit_vendor_window, bg= "white", relief= SUNKEN, anchor= "w" )
-    label_status.place(relx = 0.03, rely = 0.125, relwidth = 0.33)
+    label_status.place(relx = 0.5, rely = 0.1, relwidth = 0.9, anchor= N)
     label_status.configure(text=value)
 
     clicked = StringVar()
     clicked.set('ordered')
     drop = OptionMenu( edit_vendor_window , clicked,*status_options )
-    drop.place(relx = 0.03, rely = 0.225, relwidth = 0.43)
+    drop.place(relx = 0.5, rely = 0.25, relwidth = 0.91, anchor= N)
+
 
     # Button functions
+    global edit_vendor_new_status
+    edit_vendor_new_status=''
     def save():
-        label_status.configure(text = clicked.get())
-        
-        # check is a date was chosen or not
+        # validate if date and status were selected before accepting status entry
         try:
             if get_date.selected_date:
-                print(get_date.selected_date)
+                if not clicked.get() == 'Selected Status':
+                    label_status.configure(text = clicked.get() + ' ' + get_date.selected_date)
+                    edit_vendor_new_status = label_status.cget('text') 
+                    # print(edit_vendor.new_status) # DELETE LINE
+                    return edit_vendor.new_status
+                    # edit_vendor_window.destroy()
+                
+                else:
+                   messagebox.showerror("ERROR", "Status not selected!") 
+            
             else:
-                print('date not selected1')
-        except AttributeError:
-            print('date not selected2')
+                messagebox.showerror("ERROR", "Date not selected!")
         
-        # clear out date after use
-        get_date.selected_date=''
+        except AttributeError:
+            messagebox.showerror("ERROR", "Date not selected!")
+
+
+            edit_vendor_window.destroy()
 
     def retrieve_date():
         get_date(edit_vendor_window)
+    
         
     date_btn = Button(edit_vendor_window, text='Date', command=retrieve_date)
-    date_btn.place(relx = 0.03, rely = 0.325, relwidth = 0.33)
+    date_btn.place(relx = 0.5, rely = 0.38, relwidth = 0.9, anchor= N)
 
     save_btn = Button(edit_vendor_window, text='Save', command=save)
-    save_btn.place(relx = 0.03, rely = 0.425, relwidth = 0.33)
+    save_btn.place(relx = 0.5, rely = 0.55, relwidth = 0.9, anchor= N)
 
     '''SOURCE
     https://www.geeksforgeeks.org/dropdown-menus-tkinter/
@@ -527,27 +540,29 @@ def edit_row(tree, dataframe, parent_window):
         # close window after saving
         window_close(parent_window, edit_window)   
 
-    # def edit_Status():
-    #     print(omit_list_label.cget("text"))
-
-       
-
-
-
 
     def edit_PaymentMethod():
         print('payment method button')
     
+    
     # function and list to deal with the edit buttons for the labels in edit screen
     label_btn_id = [] # reference list to buttons created in loop associated with omit list
+    entry_bx_id = [] # reference list to all entry boxes for later calling
+    
+
     def call_edit_fnct(i):
         if i == 0:
             bname = (label_btn_id[i])
-            edit_vendor(edit_window, box_entries[i].get())
+            bob = edit_vendor(edit_window, box_entries[i].get())
+            print(bob) # DELETE LINE
+            # edit_window.wait_window(edit_vendor.edit_vendor_window)
+            # os.wait()
+            # print(edit_vendor.new_status)
+            # entry_bx_id[i].insert(0, bob)
+            # box_entries[i] = edit_vendor.new_status
         bname.configure(text = "clicked")
         print(i)
     
-
     
     # create the labels and entry boxes; populate with relevant data
     for i in range(len(label_text)):
@@ -556,6 +571,7 @@ def edit_row(tree, dataframe, parent_window):
         label = Label(edit_window)
         label.place(relx = 0.03, rely = (i/10) + 0.025, relwidth = 0.33)
         label.configure(text=label_text[i])
+
         
         # TO DO: the label must be left aligned to make it looke better
 
@@ -573,6 +589,7 @@ def edit_row(tree, dataframe, parent_window):
             entry_box = Entry(edit_window)
             entry_box.place(relx = 0.35, rely = (i/10) + 0.025, relwidth = 0.4)
             entry_box.insert(0, selected_data[i])
+            entry_bx_id.append(entry_box)
             
             # save data into list
             box_entries.append(entry_box)
@@ -588,6 +605,7 @@ def edit_row(tree, dataframe, parent_window):
             entry_box = Entry(edit_window)
             entry_box.place(relx = 0.35, rely = (i/10) + 0.025, relwidth = 0.4)
             entry_box.insert(0, selected_data[i])
+            entry_bx_id.append(entry_box)
             entry_box.config(state="disabled")
 
             ''' CODE DEPRECATED -- solution to get function reference by using a string
