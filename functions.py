@@ -2,6 +2,7 @@
 
 #from curses import window
 #from msilib import datasizemask
+from cgi import test
 from cgitb import text
 from tkinter import CENTER
 from glob import escape
@@ -18,6 +19,7 @@ from tkinter import messagebox
 from tkcalendar import Calendar
 import sys
 from functools import partial
+import time
 
 def new_order(worksheet, ticket_num, date, vendor, part_name, part_num, order_num, amount, pay_method ):
     # enters new data row into sheet
@@ -354,6 +356,7 @@ def status_history_window(window, dataframe, index):
     # grey out the parent window
     grey_out(window)
 
+# options for edit buttons in called throught the edit_row funciton
 status_options = [
 'ordered',
 'reordered',
@@ -373,6 +376,7 @@ def get_date(parent_window):
     date_window.geometry("200x400")
     date_window.grab_set()
 
+    # draw calender
     cal = Calendar(date_window, selectmode = 'day',
             year = 2020, month = 5, day = 22,
             date_pattern='MM/dd/yyyy')
@@ -381,16 +385,14 @@ def get_date(parent_window):
     # holds the date (declared empty)
     get_date.selected_date=''
 
+
     # button functions
-    #
+
     # gets the date info from calender object to the necessary variables.
     def grab_date():
         dateinfo.config(text = "Selected Date is: " + cal.get_date())
         get_date.selected_date = cal.get_date()
         
-    def close():
-        window_close(parent_window, date_window)
-
 
     # Add Button and Label
     Button(date_window, text= "Get Date", command= grab_date).pack(pady = 5)
@@ -398,48 +400,51 @@ def get_date(parent_window):
     dateinfo = Label(date_window, text = "")
     dateinfo.pack(pady = 10)
 
-    close_btn = Button(date_window, text = 'Save & Close', command= close)
+    close_btn = Button(date_window, text = 'Save & Close', command=lambda: window_close(parent_window, date_window))
     close_btn.pack(pady= 10)
 
     grey_out(parent_window)
+
     '''SOURCE
     https://www.geeksforgeeks.org/create-a-date-picker-calendar-tkinter/
     https://www.codesdope.com/blog/article/nested-function-scope-of-variable-closures-in-pyth/
     '''
 
 
-def edit_vendor(parent_window, value):
+def edit_status(parent_window, value):
 
     # Draw window
-    edit_vendor_window = Toplevel(parent_window)
-    edit_vendor_window.title("Edit Vendor")
-    edit_vendor_window.geometry("200x250")
-    edit_vendor_window.grab_set()        
+    edit_status_window = Toplevel(parent_window)
+    edit_status_window.title("Edit Vendor")
+    edit_status_window.geometry("200x250")
+    edit_status_window.grab_set()        
 
     # Draw label
-    label_status = Label(edit_vendor_window, bg= "white", relief= SUNKEN, anchor= "w" )
+    label_status = Label(edit_status_window, bg= "white", relief= SUNKEN, anchor= "w" )
     label_status.place(relx = 0.5, rely = 0.1, relwidth = 0.9, anchor= N)
     label_status.configure(text=value)
 
+    # drop down menu for status
     clicked = StringVar()
-    clicked.set('ordered')
-    drop = OptionMenu( edit_vendor_window , clicked,*status_options )
+    clicked.set('Select Status')
+    drop = OptionMenu( edit_status_window , clicked,*status_options )
     drop.place(relx = 0.5, rely = 0.25, relwidth = 0.91, anchor= N)
 
 
     # Button functions
-    global edit_vendor_new_status
-    edit_vendor_new_status=''
-    def save():
+    edit_status.new_status='nothing'
+
+    def save(window):
         # validate if date and status were selected before accepting status entry
         try:
             if get_date.selected_date:
-                if not clicked.get() == 'Selected Status':
-                    label_status.configure(text = clicked.get() + ' ' + get_date.selected_date)
-                    edit_vendor_new_status = label_status.cget('text') 
-                    # print(edit_vendor.new_status) # DELETE LINE
-                    return edit_vendor.new_status
-                    # edit_vendor_window.destroy()
+                if not clicked.get() == 'Select Status':
+                    edit_status.new_status = clicked.get() + ' ' + get_date.selected_date
+                    label_status.configure(text= edit_status.new_status)                
+                    
+                    # wait for selected info to show in status label 
+                    time.sleep(2)
+                    window.destroy()
                 
                 else:
                    messagebox.showerror("ERROR", "Status not selected!") 
@@ -450,21 +455,19 @@ def edit_vendor(parent_window, value):
         except AttributeError:
             messagebox.showerror("ERROR", "Date not selected!")
 
-
-            edit_vendor_window.destroy()
-
-    def retrieve_date():
-        get_date(edit_vendor_window)
-    
-        
-    date_btn = Button(edit_vendor_window, text='Date', command=retrieve_date)
+    # draw buttons
+    date_btn = Button(edit_status_window, text='Date', command=lambda: get_date(edit_status_window))
     date_btn.place(relx = 0.5, rely = 0.38, relwidth = 0.9, anchor= N)
 
-    save_btn = Button(edit_vendor_window, text='Save', command=save)
+    save_btn = Button(edit_status_window, text='Save', command=lambda: save(edit_status_window))
     save_btn.place(relx = 0.5, rely = 0.55, relwidth = 0.9, anchor= N)
+    
+    # make the window wait till user puts data for rest of program to continure
+    parent_window.wait_window(edit_status_window)
 
     '''SOURCE
     https://www.geeksforgeeks.org/dropdown-menus-tkinter/
+    https://stackoverflow.com/questions/28388346/what-does-thewait-window-method-do
     '''
 
 # level 2 window to show and edit one row from the treeview
@@ -551,17 +554,19 @@ def edit_row(tree, dataframe, parent_window):
     
 
     def call_edit_fnct(i):
+        print(i)
         if i == 0:
             bname = (label_btn_id[i])
-            bob = edit_vendor(edit_window, box_entries[i].get())
-            print(bob) # DELETE LINE
-            # edit_window.wait_window(edit_vendor.edit_vendor_window)
-            # os.wait()
-            # print(edit_vendor.new_status)
-            # entry_bx_id[i].insert(0, bob)
-            # box_entries[i] = edit_vendor.new_status
-        bname.configure(text = "clicked")
-        print(i)
+            edit_status(edit_window, box_entries[i].get())
+            print (edit_status.new_status)
+
+            entry_bx_id[i].config(state='normal')
+            entry_bx_id[i].delete(0, END)
+            entry_bx_id[i].insert(0,edit_status.new_status)
+            entry_bx_id[i].config(state="disabled")
+ 
+        # bname.configure(text = "clicked")
+        # print(i)
     
     
     # create the labels and entry boxes; populate with relevant data
@@ -609,7 +614,7 @@ def edit_row(tree, dataframe, parent_window):
             entry_box.config(state="disabled")
 
             ''' CODE DEPRECATED -- solution to get function reference by using a string
-            # get the functions for the edit button. Functions names are 'edit_Status', 'edit_Vendor' & 'edit_PaymentMethod'
+            # get the functions for the edit button. Functions names are 'edit_Status', 'edit_status' & 'edit_PaymentMethod'
             edit_function = locals().get('edit_' + remove(label_text[i]))
             '''
 
@@ -621,6 +626,7 @@ def edit_row(tree, dataframe, parent_window):
             # save data into list
             # box_entries.append(lambda: omit_list_label)
             box_entries.append(entry_box)
+
         '''SOURCE: 
         -> Default text in entry widget:  https://www.geeksforgeeks.org/how-to-set-the-default-text-of-tkinter-entry-widget/  
         -> create entry boxes with loop and retrieve data from boxes:  https://www.youtube.com/watch?v=H3Cjtm6NuaQ&t
@@ -628,7 +634,7 @@ def edit_row(tree, dataframe, parent_window):
         -> Tkinter Relief styles:  https://www.tutorialspoint.com/python/tk_relief.htm
         -> Assigning functions to buttons that were created with loop: https://stackoverflow.com/questions/39447138/how-can-i-identify-buttons-created-in-a-loop
         -> https://stackoverflow.com/questions/10865116/tkinter-creating-buttons-in-for-loop-passing-command-arguments
-
+        -> https://www.tutorialspoint.com/how-to-clear-the-entry-widget-after-a-button-is-pressed-in-tkinter
         note 1
         DEPRECATED CODE 
         Used the below tutorial to write the code as one approach to solve 
