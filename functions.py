@@ -90,9 +90,6 @@ def remove(string):
     https://www.geeksforgeeks.org/python-remove-spaces-from-a-string/
     '''
 
-
-
-
 #---------------------------------------------------    
 
 
@@ -125,8 +122,8 @@ def load_excel():
     return df
 
 
-#show rows for formated for proper displaying
-#if index_list is given then it will show only the rows corresponding to the number in index list
+# show rows for formated for proper displaying
+# if index_list is given then it will show only the rows corresponding to the number in index list
 def show_entries(dataframe:pd.DataFrame, index_list=[]):
     
     if index_list != []:
@@ -136,7 +133,7 @@ def show_entries(dataframe:pd.DataFrame, index_list=[]):
     return result
 
 
-#gets status history. It can bring entire dataframe set or just one row info
+# gets status history. It can bring entire dataframe set or just one row info
 def get_status_history(dataframe:pd.DataFrame, index=-1):
     
     # regex definition
@@ -415,7 +412,7 @@ def edit_status(parent_window, value):
 
     # Draw window
     edit_status_window = Toplevel(parent_window)
-    edit_status_window.title("Edit Vendor")
+    edit_status_window.title("Edit Status")
     edit_status_window.geometry("200x250")
     edit_status_window.grab_set()        
 
@@ -434,6 +431,7 @@ def edit_status(parent_window, value):
     # Button functions
     edit_status.new_status='nothing'
 
+    # TO DO: check all the error messages actually trigger properly. was working but changes have rendered some of it not. I noticed in some of the runs
     def save(window):
         # validate if date and status were selected before accepting status entry
         try:
@@ -469,6 +467,109 @@ def edit_status(parent_window, value):
     https://www.geeksforgeeks.org/dropdown-menus-tkinter/
     https://stackoverflow.com/questions/28388346/what-does-thewait-window-method-do
     '''
+
+
+def edit_vendor(parent_window, value):
+    
+    # Draw window
+    edit_vendor_window = Toplevel(parent_window)
+    edit_vendor_window.title("Edit Vendor")
+    edit_vendor_window.geometry("200x250")
+    edit_vendor_window.grab_set()    
+
+    # Draw label
+    label_vendor = Label(edit_vendor_window, bg= "white", relief= SUNKEN, anchor= "w" )
+    label_vendor.place(relx = 0.5, rely = 0.1, relwidth = 0.9, anchor= N)
+    label_vendor.configure(text=value)
+
+    vendor_list = open('vendor list.txt').read().splitlines()
+    
+    clicked = StringVar()
+    clicked.set('Select Vendor')
+    drop = OptionMenu(edit_vendor_window , clicked, *vendor_list)
+    drop.place(relx = 0.5, rely = 0.25, relwidth = 0.91, anchor= N)
+
+    def save(window):
+        if not clicked.get() == 'Select Vendor':
+            edit_vendor.new_vendor = clicked.get()
+            label_vendor.configure(text= edit_vendor.new_vendor)                
+                        
+            # wait for selected info to show in status label 
+            time.sleep(2)
+            window.destroy()        
+
+        else:
+            messagebox.showerror("ERROR", "Vendor not selected")
+
+    save_btn = Button(edit_vendor_window, text='Save', command=lambda: save(edit_vendor_window))
+    save_btn.place(relx = 0.5, rely = 0.55, relwidth = 0.9, anchor= N)    
+
+    # make the window wait till user puts data for rest of program to continure
+    parent_window.wait_window(edit_vendor_window)
+
+
+def edit_paymethod(parent_window, value):
+    
+    # Draw window
+    edit_paymethod_window = Toplevel(parent_window)
+    edit_paymethod_window.title("Edit Vendor")
+    edit_paymethod_window.geometry("300x250")
+    edit_paymethod_window.grab_set()    
+
+    # Draw label
+    label_paymethod = Label(edit_paymethod_window, bg= "white", relief= SUNKEN, anchor= "w" )
+    label_paymethod.place(relx = 0.5, rely = 0.1, relwidth = 0.9, anchor= N)
+    label_paymethod.configure(text=value)
+
+    paymethod_list = open('payment method list.txt').read().splitlines()
+    
+    selected_method = StringVar()
+
+    for a, method in enumerate(paymethod_list):
+        rbutton = Radiobutton(
+            edit_paymethod_window, 
+            text= method, 
+            variable=selected_method, 
+            value=method, 
+            command=lambda: label_paymethod.configure(text=selected_method.get())
+            )
+        
+        if (a%2) == 0:
+            rbutton.place(relx = 0.25, rely = 0.25 + (a/10), relwidth = 0.4, anchor= N)
+        else:
+            rbutton.place(relx = 0.75, rely = 0.25 + ((a-1)/10), relwidth = 0.4, anchor= N)
+
+
+    def save():
+    # clicked = StringVar()
+    # clicked.set('Select Vendor')
+    # drop = OptionMenu(edit_paymethod_window , clicked, *vendor_list)
+    # drop.place(relx = 0.5, rely = 0.25, relwidth = 0.91, anchor= N)
+
+    # def save(window):
+    #     if not clicked.get() == 'Select Vendor':
+    #         edit_paymethod.new_vendor = clicked.get()
+    #         label_paymethod.configure(text= edit_paymethod.new_vendor)                
+                        
+    #         # wait for selected info to show in status label 
+    #         time.sleep(2)
+    #         window.destroy()        
+
+    #     else:
+    #         messagebox.showerror("ERROR", "Vendor not selected")
+            
+    # save_btn = Button(edit_paymethod_window, text='Save', command=lambda: save(edit_paymethod_window))
+    # save_btn.place(relx = 0.5, rely = 0.55, relwidth = 0.9, anchor= N)    
+
+    # make the window wait till user puts data for rest of program to continure
+    grey_out(parent_window)
+    parent_window.wait_window(edit_paymethod_window)
+
+    '''SOURCE
+    https://www.tutorialspoint.com/python/tk_radiobutton.htm
+    https://www.pythontutorial.net/tkinter/tkinter-stringvar/
+    '''
+
 
 # level 2 window to show and edit one row from the treeview
 def edit_row(tree, dataframe, parent_window):
@@ -543,10 +644,6 @@ def edit_row(tree, dataframe, parent_window):
         # close window after saving
         window_close(parent_window, edit_window)   
 
-
-    def edit_PaymentMethod():
-        print('payment method button')
-    
     
     # function and list to deal with the edit buttons for the labels in edit screen
     label_btn_id = [] # reference list to buttons created in loop associated with omit list
@@ -554,17 +651,39 @@ def edit_row(tree, dataframe, parent_window):
     
 
     def call_edit_fnct(i):
-        print(i)
+        # call for status edit button
         if i == 0:
-            bname = (label_btn_id[i])
+            # call function to get changed value
             edit_status(edit_window, box_entries[i].get())
-            print (edit_status.new_status)
 
+            # display new value in entry box
             entry_bx_id[i].config(state='normal')
             entry_bx_id[i].delete(0, END)
             entry_bx_id[i].insert(0,edit_status.new_status)
             entry_bx_id[i].config(state="disabled")
- 
+        
+        # call for vendor edit button
+        elif i == 2:
+            # call function to get changed value
+            edit_vendor(edit_window, box_entries[i].get())
+
+            # display new value in entry box
+            entry_bx_id[i].config(state='normal')
+            entry_bx_id[i].delete(0, END)
+            entry_bx_id[i].insert(0,edit_vendor.new_vendor)
+            entry_bx_id[i].config(state="disabled")
+
+        # call for payment method edit button        
+        elif i == 7:
+            # call function to get changed value
+            edit_paymethod(edit_window, box_entries[i].get())
+
+            # display new value in entry box
+            entry_bx_id[i].config(state='normal')
+            entry_bx_id[i].delete(0, END)
+            entry_bx_id[i].insert(0,edit_vendor.new_vendor)
+            entry_bx_id[i].config(state="disabled")
+
         # bname.configure(text = "clicked")
         # print(i)
     
