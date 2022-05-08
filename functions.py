@@ -562,8 +562,8 @@ def edit_paymethod(parent_window, value):
     # save_btn.place(relx = 0.5, rely = 0.55, relwidth = 0.9, anchor= N)    
 
     # make the window wait till user puts data for rest of program to continure
-    grey_out(parent_window)
-    parent_window.wait_window(edit_paymethod_window)
+        grey_out(parent_window)
+        parent_window.wait_window(edit_paymethod_window)
 
     '''SOURCE
     https://www.tutorialspoint.com/python/tk_radiobutton.htm
