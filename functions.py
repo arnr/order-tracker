@@ -20,6 +20,7 @@ from tkcalendar import Calendar
 import sys
 from functools import partial
 import time
+from contextlib import suppress
 
 def new_order(worksheet, ticket_num, date, vendor, part_name, part_num, order_num, amount, pay_method ):
     # enters new data row into sheet
@@ -496,15 +497,25 @@ def edit_vendor(parent_window, value):
                         
             # wait for selected info to show in status label 
             time.sleep(2)
+            grey_in(parent_window)
             window.destroy()        
 
         else:
             messagebox.showerror("ERROR", "Vendor not selected")
 
-    save_btn = Button(edit_vendor_window, text='Save', command=lambda: save(edit_vendor_window))
+    def close():
+        edit_vendor.new_vendor = value
+        grey_in(parent_window)
+        edit_vendor_window.destroy()
+
+    save_btn = Button(edit_vendor_window, text= 'Save & Close', command=lambda: save(edit_vendor_window))
     save_btn.place(relx = 0.5, rely = 0.55, relwidth = 0.9, anchor= N)    
 
+    cls_btn = Button(edit_vendor_window, text= 'Close', command= close)
+    cls_btn.place(relx = 0.5, rely = 0.70, relwidth = 0.9, anchor= N)
+
     # make the window wait till user puts data for rest of program to continure
+    grey_out(parent_window)
     parent_window.wait_window(edit_vendor_window)
 
 
@@ -513,57 +524,61 @@ def edit_paymethod(parent_window, value):
     # Draw window
     edit_paymethod_window = Toplevel(parent_window)
     edit_paymethod_window.title("Edit Vendor")
-    edit_paymethod_window.geometry("300x250")
     edit_paymethod_window.grab_set()    
 
     # Draw label
     label_paymethod = Label(edit_paymethod_window, bg= "white", relief= SUNKEN, anchor= "w" )
-    label_paymethod.place(relx = 0.5, rely = 0.1, relwidth = 0.9, anchor= N)
-    label_paymethod.configure(text=value)
+    label_paymethod.pack(ipadx=5, ipady=5, expand=True)
+    label_paymethod.configure(text="Current: " + value)
 
     paymethod_list = open('payment method list.txt').read().splitlines()
-    
     selected_method = StringVar()
+    
+    # frame to hold the radio buttons
+    rbutton_frame = Frame(edit_paymethod_window)
+    rbutton_frame.pack(ipady=5, expand=True)
 
+    # radio button definition and placement
     for a, method in enumerate(paymethod_list):
         rbutton = Radiobutton(
-            edit_paymethod_window, 
+            rbutton_frame, 
             text= method, 
             variable=selected_method, 
             value=method, 
             command=lambda: label_paymethod.configure(text=selected_method.get())
             )
         
-        if (a%2) == 0:
-            rbutton.place(relx = 0.25, rely = 0.25 + (a/10), relwidth = 0.4, anchor= N)
+        rbutton.pack(ipadx=10)
+
+    # button function
+    def save(window):
+        if label_paymethod.cget("text") != value:
+            print("radio button selected")
+            edit_paymethod.new_paymethod = label_paymethod.cget("text")
+                                    
+            # wait for selected info to show in paymethod label 
+            time.sleep(2)
+            grey_in(parent_window)
+            window.destroy()        
+
         else:
-            rbutton.place(relx = 0.75, rely = 0.25 + ((a-1)/10), relwidth = 0.4, anchor= N)
+            messagebox.showerror("ERROR", "Payment method not selected")
 
+    def close():
+        edit_paymethod.new_paymethod = value
+        grey_in(parent_window)
+        edit_paymethod_window.destroy()
 
-    def save():
-    # clicked = StringVar()
-    # clicked.set('Select Vendor')
-    # drop = OptionMenu(edit_paymethod_window , clicked, *vendor_list)
-    # drop.place(relx = 0.5, rely = 0.25, relwidth = 0.91, anchor= N)
+    # button 
+    save_btn = Button(edit_paymethod_window, text= 'Save & Close', command=lambda: save(edit_paymethod_window) )
+    save_btn.pack(ipadx=5, ipady=10, expand=True)
 
-    # def save(window):
-    #     if not clicked.get() == 'Select Vendor':
-    #         edit_paymethod.new_vendor = clicked.get()
-    #         label_paymethod.configure(text= edit_paymethod.new_vendor)                
-                        
-    #         # wait for selected info to show in status label 
-    #         time.sleep(2)
-    #         window.destroy()        
+    cls_btn = Button(edit_paymethod_window, text= 'Close', command= close )
+    cls_btn.pack(ipadx=5, ipady=10, expand=True)
 
-    #     else:
-    #         messagebox.showerror("ERROR", "Vendor not selected")
-            
-    # save_btn = Button(edit_paymethod_window, text='Save', command=lambda: save(edit_paymethod_window))
-    # save_btn.place(relx = 0.5, rely = 0.55, relwidth = 0.9, anchor= N)    
-
-    # make the window wait till user puts data for rest of program to continure
-        grey_out(parent_window)
-        parent_window.wait_window(edit_paymethod_window)
+    # make the window wait till user puts data for rest of program to continue
+    grey_out(parent_window)
+    parent_window.wait_window(edit_paymethod_window)
 
     '''SOURCE
     https://www.tutorialspoint.com/python/tk_radiobutton.htm
@@ -681,9 +696,9 @@ def edit_row(tree, dataframe, parent_window):
             # display new value in entry box
             entry_bx_id[i].config(state='normal')
             entry_bx_id[i].delete(0, END)
-            entry_bx_id[i].insert(0,edit_vendor.new_vendor)
+            entry_bx_id[i].insert(0,edit_paymethod.new_paymethod)
             entry_bx_id[i].config(state="disabled")
-
+            
         # bname.configure(text = "clicked")
         # print(i)
     
@@ -754,6 +769,7 @@ def edit_row(tree, dataframe, parent_window):
         -> Assigning functions to buttons that were created with loop: https://stackoverflow.com/questions/39447138/how-can-i-identify-buttons-created-in-a-loop
         -> https://stackoverflow.com/questions/10865116/tkinter-creating-buttons-in-for-loop-passing-command-arguments
         -> https://www.tutorialspoint.com/how-to-clear-the-entry-widget-after-a-button-is-pressed-in-tkinter
+        
         note 1
         DEPRECATED CODE 
         Used the below tutorial to write the code as one approach to solve 
