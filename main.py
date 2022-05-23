@@ -28,6 +28,10 @@ from tkinter import ttk
 from tkinter import messagebox
 
 from functions import *
+
+
+from button_functions import *
+
 #---------------------------------------------------
 
 
@@ -85,6 +89,10 @@ def save():
     messagebox.showinfo("SUCCESS", "Data saved to Excel sheet")
 
 # test code start
+
+
+
+
 
 
 
@@ -177,7 +185,7 @@ open_orders_btn = Button(top_frame, text = 'Open Orders', command=show_open_orde
 open_orders_btn.place(relx = 0.05, rely = 0.2, relwidth = 0.1)
 
 #TO DO: this button is usless for now. but placed here as a way to see dimenions and look. Please repurpose code or delete
-nw_btn = Button(top_frame, text="new window", command=lambda: open_lvl2_window("Edit Row", root,"400x400"))
+nw_btn = Button(top_frame, text="new window")
 nw_btn.place(relx =0.2, rely = 0.2, relwidth = 0.1)
 #---------------------------------------------------
 
@@ -190,18 +198,14 @@ tree = ttk.Treeview(table_frame, height=10)
 tree.place(relx=.5, rely=0.01, relwidth=0.97, anchor='n')
 #---------------------------------------------------
 
-# test code start
-
-def tata():
-    grey_out(root)
-
-# test code end
-
 
 ## bottom frame contents
 
 edit_btn = Button(bottom_frame, text = 'Edit', command= lambda: edit_row(tree, df, root))
 edit_btn.place(relx=0.25, rely=0.1, relwidth=0.4, anchor=N)
+
+# edit_btn = Button(bottom_frame, text = 'Edit', command= lambda: edit_row(tree, df, root))
+# edit_btn.place(relx=0.25, rely=0.1, relwidth=0.4, anchor=N)
 
 save_btn = Button(bottom_frame, text = 'Save', command=save)
 save_btn.place(relx=0.75, rely=0.1, relwidth=0.4, anchor=N)
@@ -210,11 +214,6 @@ close_btn = Button(bottom_frame, text = 'Close', command=root.destroy)
 close_btn.place(relx=0.5, rely=0.4, relwidth=0.9, anchor=N)
 #---------------------------------------------------
 
-global holder
-
-def test_func():
-    global holder
-    holder = tree.selection()
 
 #edit2_btn = Button(table_frame, text = 'test_func', command=test_func)
 #edit2_btn.place(relx=.5, rely=0.7, relwidth=0.97, anchor='n')
