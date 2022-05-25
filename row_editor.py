@@ -4,6 +4,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 import time
+from pandas import DataFrame
 from tkcalendar import Calendar
 from general_functions import *
 
@@ -32,7 +33,6 @@ class row_editor:
 
     def editor(self):
         
-        print('editor hello')
         #retrieve data from selected line
         focused_line = self.tree.focus()
         focused_index = self.tree.index(self.tree.selection())

@@ -38,14 +38,14 @@ from button_functions import *
 ## Function calls & logic
 
 # retrieve data from excel sheet
-# df = load_excel()
+df = load_excel()
 
 
 ## button functions
 
-# def show_open_orders():
-#     temp = show_entries(df)
-#     populate_table(tree, temp)
+def show_open_orders():
+    temp = show_entries(df)
+    populate_table(tree, temp)
 
 
 
@@ -60,18 +60,18 @@ from button_functions import *
 
     
 
-    # '''
-    # reference the link
-    # https://pythonexamples.org/pandas-write-dataframe-to-excel-sheet/
-    # to write data to the sheet
-    # '''
+    '''
+    reference the link
+    https://pythonexamples.org/pandas-write-dataframe-to-excel-sheet/
+    to write data to the sheet
+    '''
     
-    # '''
-    # SOURCE
-    # https://stackoverflow.com/questions/56898437/method-to-get-treeview-table-into-new-dataframe
-    # https://stackoverflow.com/questions/22341271/get-list-from-pandas-dataframe-column-or-row
-    # https://www.geeksforgeeks.org/adding-new-column-to-existing-dataframe-in-pandas/
-    # '''
+    '''
+    SOURCE
+    https://stackoverflow.com/questions/56898437/method-to-get-treeview-table-into-new-dataframe
+    https://stackoverflow.com/questions/22341271/get-list-from-pandas-dataframe-column-or-row
+    https://www.geeksforgeeks.org/adding-new-column-to-existing-dataframe-in-pandas/
+    '''
     # TO DO:
     # thinking a bit ahead. simply saving the treeview to the dataframe has a issue. 
     # There are other functions that give filtered views of the dataframe to the tree view. 
@@ -83,10 +83,10 @@ from button_functions import *
 
 
 # Function for the save button on bottom frame to write data to excel.
-# def save():
-#     final_df = saveable_dataframe(df,tree)
-#     write_to_excel(final_df)
-#     messagebox.showinfo("SUCCESS", "Data saved to Excel sheet")
+def save():
+    final_df = saveable_dataframe(df,tree)
+    write_to_excel(final_df)
+    messagebox.showinfo("SUCCESS", "Data saved to Excel sheet")
 
 # test code start
 
@@ -100,12 +100,12 @@ from button_functions import *
 
 
 #use below function to search and show result. map update() function to a button
-# ggg = search(df, 'PART #', '1')
-# mylist=ggg.index.values
+ggg = search(df, 'PART #', '1')
+mylist=ggg.index.values
 
-# def update():
-#     test1 = show_entries(df,mylist)
-#     populate_table(tree,test1)
+def update():
+    test1 = show_entries(df,mylist)
+    populate_table(tree,test1)
 ####
 
 
@@ -181,11 +181,11 @@ bottom_frame.place(relx=.5, rely=0.57, relwidth=0.97, relheight=0.20, anchor='n'
 
 ## Top frame contents
 
-open_orders_btn = Button(top_frame, text = 'All Orders', command=lambda: load_data(tree))
+open_orders_btn = Button(top_frame, text = 'Open Orders', command=lambda: load_data(tree))
 open_orders_btn.place(relx = 0.05, rely = 0.2, relwidth = 0.1)
 
 #TO DO: this button is usless for now. but placed here as a way to see dimenions and look. Please repurpose code or delete
-nw_btn = Button(top_frame, text="new window", command= test)
+nw_btn = Button(top_frame, text="new window")
 nw_btn.place(relx =0.2, rely = 0.2, relwidth = 0.1)
 #---------------------------------------------------
 
@@ -201,7 +201,7 @@ tree.place(relx=.5, rely=0.01, relwidth=0.97, anchor='n')
 
 ## bottom frame contents
 
-edit_btn = Button(bottom_frame, text = 'Edit', command= lambda: edit_row(tree, root))
+edit_btn = Button(bottom_frame, text = 'Edit', command= lambda: edit_row(tree, df, root))
 edit_btn.place(relx=0.25, rely=0.1, relwidth=0.4, anchor=N)
 
 # edit_btn = Button(bottom_frame, text = 'Edit', command= lambda: edit_row(tree, df, root))
