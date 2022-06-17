@@ -1,32 +1,58 @@
 import row_editor
 import orders
 
-# varaible to hold the current working dataframe for the various functions
-working_df =""
 
+data = orders.order()
 
 
 # edit a selected row
 def edit_row(tree, root):
-    global working_df
-    new_row = row_editor.row_editor(tree, working_df, root)
+
+    new_row = row_editor.row_editor(tree, data.df, root)
     new_row.editor()
 
 
-def load_data(tree):
-    data = orders.order()
-    index = data.sort_by_status("received")
-    data.load_table(tree, data.clean_df(index))
+def populate_table(tree, view_type=""):
+    # view_type must be one of the current status types so as to display that type of orders in the treeview
+    if view_type:
+        index = data.sort_by_status(view_type)
+        data.load_table(tree, data.clean_df(index))
+    else:
+        data.load_table(tree,data.clean_df())
 
-    global working_df
-    working_df = data.df
 
+def selective_populate():
+    pass
+
+
+def test(tree, view_type):
+    # index = data.sort_by_status(view_type)
+    # print(index)
+
+    df = data.df
+    col_name = "CURRENT STATUS"
+    # test_str=view_type
+    # print(type(test_str))
+    # print(test_str)
+    # search1 = df[df[col_name].str.contains(view_type)]
+    # search1 = df[df[col_name].str.contains("ordered")]
+    # index_list1 = search1.index.values
+
+    # print(index_list1)
+
+    filt = df[col_name].str.contains("ordered") & (~df[col_name].str.contains("reordered"))
+    df1=df[filt]
+    df1_index = df1.index.values
+    print(df1)
     
-def test():
-    def Diff(li1, li2):
-        return list(set(li1) - set(li2)) + list(set(li2) - set(li1))
- 
-    # Driver Code
-    li1 = [10, 15, 20, 25, 30, 35, 40]
-    li2 = [25, 40, 35]
-    print(Diff(li1, li2))
+
+
+
+    df2= data.clean_df(df1_index)
+    data.load_table(tree,df2)
+
+def test2(tree, search_term):
+    index = data.search(search_term)
+    # cleaned_data = data.clean_df(index)
+    # print(cleaned_data)
+    data.load_table(tree, index)

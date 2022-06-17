@@ -9,6 +9,8 @@ import pandas as pd
 
 
 
+
+
 class order:
 
     def __init__(self) -> None:
@@ -77,7 +79,7 @@ class order:
         df_rows = dataframe.to_numpy().tolist()
         for row in df_rows:
             table.insert("","end", values=row)
-        
+            
         return table
 
     #show rows based on a term 'searchTerm' down a CURRENT STATUS column
@@ -94,11 +96,25 @@ class order:
             index_list2 = search1.index.values
 
             return list(set(index_list1) - set(index_list2)) + list(set(index_list2) - set(index_list1))
+            # SOURCE 1
 
         else:
             search = df[df[col_name].str.contains(search_term)]
             return search.index.values
 
-        
+        '''SOURCES:
+        (1) https://www.geeksforgeeks.org/python-difference-two-lists/'''
 
 
+    def search(self,search_term):
+
+        df = self.df 
+
+        if search_term == "ordered":
+            filtered = df["CURRENT STATUS"].str.contains("ordered") & (~df["CURRENT STATUS"].str.contains("reordered"))
+        else:
+            filtered = df["CURRENT STATUS"].str.contains(search_term)   
+                
+        df2 = df[filtered]
+        clean_df = df2.loc[:,df2.columns != 'STATUS HISTORY']
+        return clean_df

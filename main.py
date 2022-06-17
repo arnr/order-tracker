@@ -120,7 +120,7 @@ root = Tk()
 # below line is to stop the flashing when this window is created but not shown. It is undone in the show_root_window function
 root.overrideredirect(1)
 root.title('Order Tracker')
-root.geometry("1000x700")
+root.geometry("1100x700")
 root.eval('tk::PlaceWindow . center')
 '''
 SOURCE
@@ -166,12 +166,19 @@ https://www.tutorialspoint.com/how-can-i-set-the-row-height-in-tkinter-treeview
 ## Root window contents / frame definitions
 
 #top frame holds main buttons
-top_frame = Frame(root, bg ='#80c1ff' )
-top_frame.place(relx=.5, rely=0.03, relwidth=0.97, relheight=0.10, anchor='n')
+# top_frame = Frame(root, bg ='#80c1ff' )
+# top_frame.place(relx=.5, rely=0.03, relwidth=0.97, relheight=0.10, anchor='n')
+
+# side menu frame
+side_frame = Frame(root, bg ='#80c1ff' )
+side_frame.place(relx=.02, rely=0.03, relwidth=0.15, relheight=0.42, anchor='nw')
 
 #table frame holds the treeview and data
+# table_frame = Frame(root, bg='#80c1ff')
+# table_frame.place(relx=.5, rely=0.14, relwidth=0.97, relheight=0.42, anchor='n')
+
 table_frame = Frame(root, bg='#80c1ff')
-table_frame.place(relx=.5, rely=0.14, relwidth=0.97, relheight=0.42, anchor='n')
+table_frame.place(relx=.99, rely=0.03, relwidth=0.84, relheight=0.42, anchor='ne')
 
 #bottom frame holds editing buttons
 bottom_frame = Frame(root, bg='#80c1ff')
@@ -181,12 +188,40 @@ bottom_frame.place(relx=.5, rely=0.57, relwidth=0.97, relheight=0.20, anchor='n'
 
 ## Top frame contents
 
-open_orders_btn = Button(top_frame, text = 'All Orders', command=lambda: load_data(tree))
-open_orders_btn.place(relx = 0.05, rely = 0.2, relwidth = 0.1)
+# open_orders_btn = Button(top_frame, text = 'All Orders', command=lambda: populate_table(tree))
+# open_orders_btn.place(relx = 0.05, rely = 0.2, relwidth = 0.1)
 
-#TO DO: this button is usless for now. but placed here as a way to see dimenions and look. Please repurpose code or delete
-nw_btn = Button(top_frame, text="new window", command= test)
-nw_btn.place(relx =0.2, rely = 0.2, relwidth = 0.1)
+# #TO DO: this button is usless for now. but placed here as a way to see dimenions and look. Please repurpose code or delete
+# nw_btn = Button(top_frame, text="new window", command= test)
+# nw_btn.place(relx =0.2, rely = 0.2, relwidth = 0.1)
+#---------------------------------------------------
+
+
+## Side menu frame contents
+button_names = [
+    'ordered',
+    'reordered',
+    'received',
+    'return_requested',
+    'return_authorized',
+    'credit_memo_received',
+    'compeleted tickets'
+]
+
+all_orders_btn = Button(side_frame, text = 'All Orders', command=lambda: populate_table(tree, "ordered"))
+all_orders_btn.place(relx = 0.05, rely = 0.05, relwidth = 0.95)
+
+clicked = StringVar()
+clicked.set('Select order Type')
+drop = OptionMenu(side_frame , clicked, *button_names)
+drop.place(relx = 0.5, rely = 0.25, relwidth = 0.95, anchor= N)
+
+select_orders_btn = Button(side_frame, text = 'View', command=lambda: populate_table(tree, clicked.get()))
+select_orders_btn.place(relx = 0.05, rely = 0.40, relwidth = 0.95)
+
+lg_orders_btn = Button(side_frame, text = 'LG Orders', command=lambda: test2(tree,clicked.get()))
+lg_orders_btn.place(relx = 0.05, rely = 0.60, relwidth = 0.95)
+
 #---------------------------------------------------
 
 
